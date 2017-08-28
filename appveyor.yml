@@ -8,8 +8,8 @@ environment:
   GOPATH: c:\gopath
   JFROG_CLI_OFFER_CONFIG: false
   VCS_URL: https://github.com/%APPVEYOR_REPO_NAME%
-  BT_KEY:
-    secure: P9xGXGG38T4AvO8XXXXcbaDG2sSN4t6KH92zssGp0nrbyQAZuxHD9F84s6PM9mOD
+ # BT_KEY:
+ #   secure: P9xGXGG38T4AvO8XXXXcbaDG2sSN4t6KH92zssGp0nrbyQAZuxHD9F84s6PM9mOD
 
 install:
   - set GH_APP=%APPVEYOR_PROJECT_NAME%
@@ -39,7 +39,8 @@ before_test:
   - cd ..
   # run tests
   - go run testing\\main.go
-
+  - cd
+  
 # run custom scripts
 build_script:
   # x386
@@ -55,15 +56,15 @@ build_script:
   - .\go-msi.exe make --msi %GH_APP%-%GOARCH%-%VERSION%.msi --version %VERSION% --arch %GOARCH%
   - cp %GH_APP%-%GOARCH%-%VERSION%.msi %GH_APP%-%GOARCH%.msi
 
-deploy_script:
-  - never-fail jfrog bt pc --user %GH_USER% --key %BT_KEY% --licenses=MIT --vcs-url=https://github.com/%APPVEYOR_REPO_NAME% %GH_USER%/msi/%GH_APP%
-  - never-fail jfrog bt pc --user %GH_USER% --key %BT_KEY% --licenses=MIT --vcs-url=https://github.com/%APPVEYOR_REPO_NAME% %GH_USER%/choco/%GH_APP%
-  - never-fail curl -X "DELETE" -u%GH_USER%:%BT_KEY% https://api.bintray.com/content/%GH_USER%/choco/%GH_APP%.%VERSION%.nupkg # workaround until --override=true is honored in next upload
-  - jfrog bt upload --user %GH_USER% --key %BT_KEY%  --override=true --publish=true %GH_APP%.%VERSION%.nupkg %GH_USER%/choco/%GH_APP%/%VERSION%
-  - set GOARCH=386
-  - jfrog bt upload --user %GH_USER% --key %BT_KEY%  --override=true --publish=true %GH_APP%-%GOARCH%-%VERSION%.msi %GH_USER%/msi/%GH_APP%/%VERSION%
-  - set GOARCH=amd64
-  - jfrog bt upload --user %GH_USER% --key %BT_KEY%  --override=true --publish=true %GH_APP%-%GOARCH%-%VERSION%.msi %GH_USER%/msi/%GH_APP%/%VERSION%
+#deploy_script:
+#  - never-fail jfrog bt pc --user %GH_USER% --key %BT_KEY% --licenses=MIT --vcs-url=https://github.com/%APPVEYOR_REPO_NAME% %GH_USER%/msi/%GH_APP%
+#  - never-fail jfrog bt pc --user %GH_USER% --key %BT_KEY% --licenses=MIT --vcs-url=https://github.com/%APPVEYOR_REPO_NAME% %GH_USER%/choco/%GH_APP%
+#  - never-fail curl -X "DELETE" -u%GH_USER%:%BT_KEY% https://api.bintray.com/content/%GH_USER%/choco/%GH_APP%.%VERSION%.nupkg # workaround until --override=true is honored in next upload
+#  - jfrog bt upload --user %GH_USER% --key %BT_KEY%  --override=true --publish=true %GH_APP%.%VERSION%.nupkg %GH_USER%/choco/%GH_APP%/%VERSION%
+#  - set GOARCH=386
+#  - jfrog bt upload --user %GH_USER% --key %BT_KEY%  --override=true --publish=true %GH_APP%-%GOARCH%-%VERSION%.msi %GH_USER%/msi/%GH_APP%/%VERSION%
+#  - set GOARCH=amd64
+#  - jfrog bt upload --user %GH_USER% --key %BT_KEY%  --override=true --publish=true %GH_APP%-%GOARCH%-%VERSION%.msi %GH_USER%/msi/%GH_APP%/%VERSION%
 
 artifacts:
   - path: '*-386.msi'
